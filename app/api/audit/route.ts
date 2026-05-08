@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runAudit } from '@/lib/auditEngine'
 import { AuditInput } from '@/types'
-
-export const auditStore: Record<string, object> = {}
+import { supabase } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +13,14 @@ export async function POST(req: NextRequest) {
 
     const result = runAudit(input)
 
-    auditStore[result.id] = result
+    await supabase.from('audits').insert({
+      id: result.id,
+      input: result.input,
+      recommendations: result.recommendations,
+      total_monthly_savings: result.totalMonthlySavings,
+      total_annual_savings: result.totalAnnualSavings,
+      summary: '',
+    })
 
     return NextResponse.json({ id: result.id })
   } catch (err) {
@@ -25,8 +31,25 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
-  if (!id || !auditStore[id]) {
+  if (!id) return NextResponse.json({ error: 'No id' }, { status: 400 })
+
+  const { data, error } = await supabase
+    .from('audits')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error || !data) {
     return NextResponse.json({ error: 'Audit not found' }, { status: 404 })
   }
-  return NextResponse.json(auditStore[id])
+
+  return NextResponse.json({
+    id: data.id,
+    input: data.input,
+    recommendations: data.recommendations,
+    totalMonthlySavings: data.total_monthly_savings,
+    totalAnnualSavings: data.total_annual_savings,
+    summary: data.summary,
+    createdAt: data.created_at,
+  })
 }
