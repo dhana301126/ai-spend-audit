@@ -141,7 +141,18 @@ export default function AuditPage() {
                 className="flex-1 bg-gray-800 rounded-lg px-4 py-2 text-white border border-gray-700 focus:border-green-500 outline-none"
               />
               <button
-                onClick={() => setEmailSent(true)}
+                onClick={async () => {
+                  if (!email) return
+                  await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email,
+                      auditId: id,
+                    }),
+                  })
+                  setEmailSent(true)
+                }}
                 className="bg-green-500 hover:bg-green-400 text-black font-bold px-6 py-2 rounded-lg transition"
               >
                 Send
