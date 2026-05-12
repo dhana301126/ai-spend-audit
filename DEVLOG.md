@@ -18,3 +18,17 @@
 **What I learned:** How to deploy Next.js to Vercel, how to add environment variables to production.
 **Blockers / what I'm stuck on:** Anthropic API needs paid credits, using fallback summary.
 **Plan for tomorrow:** Write all markdown files, add tests, set up CI, do user interviews.
+
+## Day 4 — 2026-05-10
+**Hours worked:** 6
+**What I did:** Wrote all markdown files — README, ARCHITECTURE, PRICING_DATA, PROMPTS, LANDING_COPY, METRICS, GTM, ECONOMICS, REFLECTION, USER_INTERVIEWS. Set up Jest testing framework and wrote 5 tests for the audit engine. All tests passing.
+**What I learned:** How to write unit tests with Jest and ts-jest, how to structure go-to-market thinking, how to calculate unit economics for a B2B lead gen tool.
+**Blockers / what I'm stuck on:** Needed one more user interview — solved by talking to classmates on WhatsApp.
+**Plan for tomorrow:** Set up CI/CD, final commit, submit Google Form.
+
+## Day 5 — 2026-05-11
+**Hours worked:** 3
+**What I did:** Set up GitHub Actions CI/CD workflow, final testing of live URL, committed all markdown files, submitted Google Form.
+**What I learned:** How to set up GitHub Actions for automated testing on every push.
+**Blockers / what I'm stuck on:** None — project complete.
+**Plan for tomorrow:** Semester exams begin.
