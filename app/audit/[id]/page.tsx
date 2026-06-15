@@ -13,13 +13,34 @@ export default function AuditPage() {
   const [emailSent, setEmailSent] = useState(false)
 
   useEffect(() => {
+    const stored = sessionStorage.getItem(`audit_${id}`)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      setResult(parsed)
+      setLoading(false)
+      fetch('/api/summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auditId: parsed.id,
+          totalMonthlySavings: parsed.totalMonthlySavings,
+          totalAnnualSavings: parsed.totalAnnualSavings,
+          tools: parsed.input.tools.map((t: { tool: string }) => t.tool),
+          useCase: parsed.input.useCase,
+        }),
+      }).then(r => r.json()).then(d => setSummary(d.summary))
+      return
+    }
+
     fetch(`/api/audit?id=${id}`)
       .then(r => r.json())
       .then(async (data) => {
+        if (data.error) {
+          setLoading(false)
+          return
+        }
         setResult(data)
         setLoading(false)
-
-        // Generate AI summary
         const tools = data.input.tools.map((t: { tool: string }) => t.tool)
         const res = await fetch('/api/summary', {
           method: 'POST',
@@ -75,8 +96,6 @@ export default function AuditPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 pb-20">
-
-        {/* AI Summary */}
         {summary && (
           <div className="bg-gray-900 rounded-2xl p-6 mb-8 border border-green-500/20">
             <p className="text-green-400 text-sm font-semibold mb-2">AI ANALYSIS</p>
@@ -84,7 +103,6 @@ export default function AuditPage() {
           </div>
         )}
 
-        {/* Tool breakdown */}
         <h2 className="text-xl font-semibold mb-4">Tool Breakdown</h2>
         <div className="space-y-4 mb-10">
           {result.recommendations.map((rec, i) => (
@@ -110,13 +128,11 @@ export default function AuditPage() {
           ))}
         </div>
 
-        {/* Credex CTA */}
         {isHighSavings && (
           <div className="bg-green-900/30 border border-green-500/40 rounded-2xl p-6 mb-10">
             <h3 className="text-xl font-bold text-green-400 mb-2">Unlock Even More Savings with Credex</h3>
             <p className="text-gray-300 mb-4">
               Credex sells discounted AI credits at up to 40% off retail.
-              With ${result.totalMonthlySavings}/mo in identified savings, a Credex consultation could save you even more.
             </p>
             <button
               onClick={() => window.open('https://credex.rocks', '_blank')}
@@ -127,7 +143,6 @@ export default function AuditPage() {
           </div>
         )}
 
-        {/* Email capture */}
         {!emailSent ? (
           <div className="bg-gray-900 rounded-2xl p-6 mb-10">
             <h3 className="text-lg font-semibold mb-1">Get This Report in Your Inbox</h3>
@@ -146,10 +161,7 @@ export default function AuditPage() {
                   await fetch('/api/leads', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      email,
-                      auditId: id,
-                    }),
+                    body: JSON.stringify({ email, auditId: id }),
                   })
                   setEmailSent(true)
                 }}
@@ -165,7 +177,6 @@ export default function AuditPage() {
           </div>
         )}
 
-        {/* Share */}
         <div className="bg-gray-900 rounded-2xl p-6 text-center">
           <h3 className="text-lg font-semibold mb-2">Share This Audit</h3>
           <p className="text-gray-400 text-sm mb-4">Send to your co-founder or engineering manager</p>

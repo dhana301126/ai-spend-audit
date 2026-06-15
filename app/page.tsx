@@ -69,6 +69,9 @@ export default function Home() {
         body: JSON.stringify(input),
       })
       const data = await res.json()
+      if (data.result) {
+        sessionStorage.setItem(`audit_${data.id}`, JSON.stringify(data.result))
+      }
       router.push(`/audit/${data.id}`)
     } catch (err) {
       console.error(err)
