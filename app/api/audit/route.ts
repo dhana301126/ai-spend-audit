@@ -13,16 +13,32 @@ export async function POST(req: NextRequest) {
 
     const result = runAudit(input)
 
-    await supabase.from('audits').insert({
-      id: result.id,
-      input: result.input,
-      recommendations: result.recommendations,
-      total_monthly_savings: result.totalMonthlySavings,
-      total_annual_savings: result.totalAnnualSavings,
-      summary: '',
-    })
+    try {
+      await supabase.from('audits').insert({
+        id: result.id,
+        input: result.input,
+        recommendations: result.recommendations,
+        total_monthly_savings: result.totalMonthlySavings,
+        total_annual_savings: result.totalAnnualSavings,
+        summary: '',
+      })
+    } catch (dbError) {
+      console.error('DB error:', dbError)
+    }
 
-    return NextResponse.json({ id: result.id })
+    // Return both id AND full result so sessionStorage can cache it
+    return NextResponse.json({ 
+      id: result.id, 
+      result: {
+        id: result.id,
+        input: result.input,
+        recommendations: result.recommendations,
+        totalMonthlySavings: result.totalMonthlySavings,
+        totalAnnualSavings: result.totalAnnualSavings,
+        summary: '',
+        createdAt: result.createdAt,
+      }
+    })
   } catch (err) {
     console.error(err)
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 })
